@@ -12,7 +12,7 @@ export GIN_MODE=release
 
 # 运行 Go 程序
 echo "Running Go program..."
-go run main.go
+go run .
 
 # 检查程序是否成功运行
 if [ $? -ne 0 ]; then
