@@ -1,0 +1,24 @@
+services:
+  # Gin Web 应用服务（使用本地 MySQL）
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gin-web-app
+    restart: unless-stopped
+    extra_hosts:
+      # macOS 和 Windows 使用 host.docker.internal
+      # Linux 需要使用 hostnetwork 或其他方式
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: ${DB_USER:-ginuser}:${DB_PASSWORD:-ginpassword}@tcp(host.docker.internal:3306)/${DB_NAME:-gin_web_db}?charset=utf8mb4&parseTime=True&loc=Local
+      PORT: ${PORT:-3000}
+      GIN_MODE: ${GIN_MODE:-release}
+    ports:
+      - "${PORT:-3000}:3000"
+    networks:
+      - gin-web-network
+
+networks:
+  gin-web-network:
+    driver: bridge

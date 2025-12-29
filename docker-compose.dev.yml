@@ -1,0 +1,19 @@
+# 开发环境配置 - 使用 SQLite 数据库
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gin-web-app-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: sqlite:/app/gin_web.db
+      PORT: ${PORT:-3000}
+      GIN_MODE: ${GIN_MODE:-debug}
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # 挂载 SQLite 数据文件
+      - ./gin_web.db:/app/gin_web.db
+      # 开发时可以挂载源代码（热重载需要额外配置）
+      # - .:/app

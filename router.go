@@ -10,6 +10,22 @@ import (
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
+	// 根路径 - API 信息
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Gin Web API",
+			"version": "1.0.0",
+			"endpoints": gin.H{
+				"GET /":         "API 信息",
+				"GET /ping":     "健康检查",
+				"POST /user":    "创建用户",
+				"GET /user/:id": "获取用户",
+				"PUT /user/:id": "更新用户",
+				"DELETE /user/:id": "删除用户",
+			},
+		})
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})

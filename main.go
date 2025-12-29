@@ -12,9 +12,10 @@ import (
 var db *gorm.DB
 
 func main() {
+	// 尝试加载 .env 文件，如果不存在则忽略（Docker 环境中使用环境变量）
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Println("No .env file found, using environment variables")
 	}
 
 	dsn := os.Getenv("DATABASE_URL")

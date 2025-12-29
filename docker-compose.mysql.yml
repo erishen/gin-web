@@ -1,0 +1,52 @@
+services:
+  # MySQL 数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: gin-web-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-gin_web_db}
+      MYSQL_USER: ${DB_USER:-ginuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-ginpassword}
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - gin-web-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # Gin Web 应用服务
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gin-web-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DB_USER:-ginuser}:${DB_PASSWORD:-ginpassword}@tcp(mysql:3306)/${DB_NAME:-gin_web_db}?charset=utf8mb4&parseTime=True&loc=Local
+      PORT: ${PORT:-3000}
+      GIN_MODE: ${GIN_MODE:-release}
+    ports:
+      - "${PORT:-3000}:3000"
+    networks:
+      - gin-web-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  gin-web-network:
+    driver: bridge
